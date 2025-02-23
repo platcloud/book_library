@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirm Book Deletion</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            font-size: 18px;
+            color: #666;
+        }
+        .button-container {
+            margin-top: 20px;
+        }
+        .button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .delete-button {
+            background-color: #ff4d4d;
+            color: white;
+        }
+        .cancel-button {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+<h1>Confirm Book Deletion</h1>
+<p>Are you sure you want to delete the following book?</p>
+<p><strong>Title:</strong> <span th:text="${book.title}"></span></p>
+<p><strong>Author:</strong> <span th:text="${book.author}"></span></p>
+<p><strong>Publisher:</strong> <span th:text="${book.publisher}"></span></p>
+<p><strong>Publication Date:</strong> <span th:text="${book.publicationDate}"></span></p>
+<div class="button-container">
+    <a href="#" th:href="@{/books/{id}/delete(id=${book.id})}" class="button delete-button">Delete</a>
+    <a href="/books" class="button cancel-button">Cancel</a>
+</div>
+</body>
+</html>
