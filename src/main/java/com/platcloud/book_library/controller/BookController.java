@@ -3,53 +3,63 @@ package com.platcloud.book_library.controller;
 import com.platcloud.book_library.entity.Book;
 import com.platcloud.book_library.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
+@RequestMapping("/books")
 public class BookController {
     @Autowired
     private BookService bookService;
 
-    @GetMapping("/books")
-    public String getAllBooks(Model model) {
+    @GetMapping
+    public ResponseEntity<List<Book>> getAllBooks() {
         List<Book> books = bookService.list();
-        model.addAttribute("books", books);
-        return "bookList";
+        return new ResponseEntity<>(books, HttpStatus.OK);
     }
 
-    @GetMapping("/books/add")
-    public String showAddBookForm(Model model) {
-        model.addAttribute("book", new Book());
-        return "addBook";
+    // 修改此处的 @PostMapping 注解
+    @PostMapping
+    public ResponseEntity<?> addBook(@RequestBody Book book) {
+        boolean saved = bookService.save(book);
+        if (saved) {
+            return new ResponseEntity<>(book, HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>("Failed to save book", HttpStatus.BAD_REQUEST);
+        }
     }
 
-    @PostMapping("/books/add")
-    public String addBook(@ModelAttribute Book book) {
-        bookService.save(book);
-        return "redirect:/books";
-    }
-
-    @GetMapping("/books/{id}/update")
-    public String showUpdateBookForm(@PathVariable Long id, Model model) {
+    @GetMapping("/{id}")
+    public ResponseEntity<Book> getBookById(@PathVariable Long id) {
         Book book = bookService.getById(id);
-        model.addAttribute("book", book);
-        return "updateBook";
+        if (book != null) {
+            return new ResponseEntity<>(book, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
-    @PostMapping("/books/{id}/update")
-    public String updateBook(@PathVariable Long id, @ModelAttribute Book book) {
+    @PutMapping("/{id}")
+    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book book) {
         book.setId(id);
-        bookService.updateById(book);
-        return "redirect:/books";
+        Book updatedBook = bookService.updateById(book)? book : null;
+        if (updatedBook != null) {
+            return new ResponseEntity<>(updatedBook, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
-    @GetMapping("/books/{id}/delete")
-    public String deleteBook(@PathVariable Long id) {
-        bookService.removeById(id);
-        return "redirect:/books";
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
+        boolean deleted = bookService.removeById(id);
+        if (deleted) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }
